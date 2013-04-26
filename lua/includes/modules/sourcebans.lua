@@ -222,7 +222,7 @@ function checkBan(ply, steamID, ip, name)
         query.player    = ply;
         query.name      = name;
         query.onData    = banCheckerOnData;
-        query.onFailure = banCheckerOnFailure;
+        query.onError = banCheckerOnFailure;
         query:start();
     else
         table.insert(database.pending, {queryText, steamID, name, ply});
@@ -235,7 +235,7 @@ function checkBanBySteamID(steamID, callback)
         query.steamID   = steamID;
         query.callback  = callback;
         query.onSuccess = checkSIDOnSuccess;
-        query.onFailure = checkSIDOnFailure;
+        query.onError = checkSIDOnFailure;
         query:start();
 end
 
@@ -244,7 +244,7 @@ function loadAdmins()
     adminGroups = {};
     adminsByID = {};
     local query = database:query(queries["Select Admin Groups"]:format(config.dbprefix));
-    query.onFailure = adminGroupLoaderOnFailure;
+    query.onError = adminGroupLoaderOnFailure;
     query.onSuccess = adminGroupLoaderOnSuccess;
     query:start();
     notifymessage("Loading Admin Groups . . .");
@@ -261,7 +261,7 @@ end
 function doUnban(query, id, reason, admin)
     local aid = getAdminDetails(admin)
     query = database:query(query:format(config.dbprefix, aid, database:escape(reason), id));
-    query.onFailure = unbanOnFailure;
+    query.onError = unbanOnFailure;
     query.id = id;
     query:start();
 end
@@ -272,7 +272,7 @@ function doBan(steamID, ip, name, length, reason, admin, callback)
     name = name or "";
     local query = database:query(queries["Ban Player"]:format(config.dbprefix, ip, steamID, database:escape(name), time, time + length, length, database:escape(reason), adminID, adminIP, config.serverid));
     query.onSuccess = banOnSuccess;
-    query.onFailure = banOnFailure;
+    query.onError = banOnFailure;
     query.callback = callback;
     query.name = name;
     query:start();
@@ -298,7 +298,7 @@ function banCheckerOnData(self, data)
     kickid(self.steamID);
     banid(self.steamID);
     local query = database:query(queries["Log Join Attempt"]:format(config.dbprefix, config.serverid, os.time(), self.name, data.bid));
-    query.onFailure = joinAttemptLoggerOnFailure;
+    query.onError = joinAttemptLoggerOnFailure;
     query.name = self.name;
     query:start();
 end
@@ -344,7 +344,7 @@ function adminGroupLoaderOnSuccess(self)
     end
     local query = database:query(queries["Select Admins"]:format(config.dbprefix,config.dbprefix,config.serverid));
     query.onSuccess = adminLoaderOnSuccess;
-    query.onFailure = adminLoaderOnFailure;
+    query.onError = adminLoaderOnFailure;
     query.onData = adminLoaderOnData;
     query:start();
     notifymessage("Loading Admins . . .");
@@ -372,7 +372,7 @@ function databaseOnConnected(self)
         query.name      = info[3];
         query.player    = info[4];
         query.onData    = banCheckerOnData;
-        query.onFailure = banCheckerOnFailure;
+        query.onError = banCheckerOnFailure;
         query:start();
     end
     self.pending = {};
@@ -640,7 +640,7 @@ function GetAllActiveBans(callback)
     end
     local query = database:query(queries["Get All Active Bans"]:format(config.dbprefix));
     query.onSuccess = activeBansOnSuccess;
-    query.onFailure = activeBansOnFailure;
+    query.onError = activeBansOnFailure;
     query.callback = callback;
     query:start();
 end
