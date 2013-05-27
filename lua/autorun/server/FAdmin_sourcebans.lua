@@ -4,7 +4,7 @@ local function storeBan(steamID, nick, duration, reason, adminName, adminSteam)
 	local admin = FAdmin.FindPlayer(adminSteam)
 	admin = admin and admin[1] or nil
 
-	sourcebans.BanPlayerBySteamID(steamID, duration, reason, admin, nick, function(worked, message)
+	sourcebans.BanPlayerBySteamID(steamID, duration * 60, reason, admin, nick, function(worked, message)
 		if not worked then error("Storing ban failed: " .. message) end
 	end)
 end
